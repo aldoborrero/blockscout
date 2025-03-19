@@ -99,7 +99,28 @@ defmodule BlockScout.Mixfile do
       {:tesla, "~> 1.13.0"},
       # Documentation
       {:ex_doc, "~> 0.37.2", only: :dev, runtime: false},
-      {:number, "~> 1.0.3"}
+      {:number, "~> 1.0.3"},
+      {:deps_nix, "~> 2.0", only: :dev}
+    ]
+  end
+
+  defp aliases(env) do
+    [
+      # to match behavior of `mix test` in `apps/indexer`, which needs to not start applications for `indexer` to
+      # prevent its supervision tree from starting, which is undesirable in test
+      test: "test --no-start",
+      "deps.get": ["deps.get", "deps.nix"],
+      "deps.update": ["deps.update", "deps.nix"]
+    ] ++ env_aliases(env)
+  end
+
+  defp env_aliases(:dev) do
+    []
+  end
+
+  defp env_aliases(_env) do
+    [
+      compile: "compile --warnings-as-errors"
     ]
   end
 end
