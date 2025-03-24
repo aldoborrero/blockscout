@@ -11,7 +11,7 @@ defmodule NFTMediaHandler.Image.Resizer do
 
   ## Parameters
 
-    - image: The `Vix.Vips.Image` struct representing the image to be resized.
+    - image: The image to be resized (previously Vix.Vips.Image struct).
     - url: The URL of the image.
     - extension: The file extension of the image.
 
@@ -20,29 +20,34 @@ defmodule NFTMediaHandler.Image.Resizer do
   A list containing the resized image data.
 
   """
-  @spec resize(Vix.Vips.Image.t(), binary(), binary()) :: list()
-  def resize(image, url, extension) do
-    max_size = max(Image.width(image), Image.height(image) / Image.pages(image))
-
-    @sizes
-    |> Enum.map(fn {int_size, size} ->
-      new_file_name = generate_file_name(url, extension, size)
-
-      with {:size, true} <- {:size, max_size > int_size},
-           {:ok, resized_image} <- Image.thumbnail(image, size, []),
-           {:ok, binary} <- NFTMediaHandler.image_to_binary(resized_image, new_file_name, extension) do
-        {int_size, binary, new_file_name}
-      else
-        {:size, _} ->
-          Logger.debug("Skipped #{size} resizing due to small image size")
-          nil
-
-        error ->
-          Logger.warning("Error while #{size} resizing: #{inspect(error)}")
-          nil
-      end
-    end)
-    |> Enum.reject(&is_nil/1)
+  # @spec resize(Vix.Vips.Image.t(), binary(), binary()) :: list()
+  def resize(_image, url, extension) do
+    # Vix.Vips functionality disabled
+    Logger.info("Image resizing with Vix.Vips has been disabled")
+    []
+    
+    # Previous implementation:
+    # max_size = max(Image.width(image), Image.height(image) / Image.pages(image))
+    #
+    # @sizes
+    # |> Enum.map(fn {int_size, size} ->
+    #   new_file_name = generate_file_name(url, extension, size)
+    #
+    #   with {:size, true} <- {:size, max_size > int_size},
+    #        {:ok, resized_image} <- Image.thumbnail(image, size, []),
+    #        {:ok, binary} <- NFTMediaHandler.image_to_binary(resized_image, new_file_name, extension) do
+    #     {int_size, binary, new_file_name}
+    #   else
+    #     {:size, _} ->
+    #       Logger.debug("Skipped #{size} resizing due to small image size")
+    #       nil
+    #
+    #     error ->
+    #       Logger.warning("Error while #{size} resizing: #{inspect(error)}")
+    #       nil
+    #   end
+    # end)
+    # |> Enum.reject(&is_nil/1)
   end
 
   @doc """
